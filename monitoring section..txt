@@ -1,0 +1,223 @@
+char rec, rec1, rec2, rec3;
+int c = 0;
+#include <LiquidCrystal.h>
+#include <HTTPClient.h>
+#include <WiFi.h>
+#include <ArduinoJson.h>
+const int rs = 5, en = 18, d4 = 19, d5 = 21, d6 = 22, d7 = 23;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+String r;
+int j, count, k;
+char test_L[4];
+String sensor1_status;
+String sensor2_status;
+String sensor3_status;
+String sensor4_status;
+String sensor5_status;
+String sensor6_status;
+String sensor7_status;
+String sensor8_status;
+String sms_status;
+void setup() {
+  Serial.begin(9600);
+  Serial2.begin(9600);
+  pinMode(36, INPUT);
+  pinMode(34, INPUT);
+  pinMode(33, INPUT);
+  pinMode(32, INPUT);
+  pinMode(25, INPUT);
+  pinMode(26, OUTPUT);
+  lcd.begin(16, 2);
+  WiFi.begin("iotbegin461", "iotbegin461");  //WiFi connection..........
+  while (WiFi.status() != WL_CONNECTED) {
+    lcd.setCursor(0, 0);
+    lcd.print(" connecting for     ");
+    lcd.setCursor(0, 1);
+    lcd.print("iotbegin461");
+    Serial.println("Waiting for Wi-Fi connection");
+  }
+  lcd.setCursor(0, 0);
+  lcd.print("SMART LICSENSE   ");
+  lcd.setCursor(0, 1);
+  lcd.print("MONITORING SYSTEM");
+  delay(3000);
+  lcd.clear();
+}
+void loop() {
+  if (k == 0) {
+    if (Serial2.available()) {
+      r = Serial2.readString();
+      delay(1000);
+    }
+    Serial.println(r);
+    if (r == "10000242EABA") {
+      lcd.setCursor(0, 0);
+      lcd.print("PERSON 1    ");
+      k = 1;
+      sensor1_status = "PERSON 1";
+      sensor2_status = "34567890";
+    }
+    if (r == "100003D49354") {
+      k = 1;
+      lcd.setCursor(0, 0);
+      lcd.print("PERSON 2    ");
+      sensor1_status = "PERSON 2";
+      sensor2_status = "34567891";;
+    }
+  }
+  if (k == 1) {
+    if (j == 0) {
+      if (c == 0) {
+        if (Serial.available()) {
+          rec = Serial.read();
+          if ((rec == 'a') || (rec == 'b') || (rec == 'c') || (rec == 'd')) {
+            c = c + 1;
+          }
+        }
+        Serial.println(rec);
+        Serial.println(c);
+        delay(1000);
+      }
+      if (c == 1) {
+        if (Serial.available()) {
+          rec1 = Serial.read();
+          if ((rec1 == 'a') || (rec1 == 'b') || (rec1 == 'c') || (rec1 == 'd')) {
+            c = c + 1;
+          }
+        }
+        Serial.println(rec1);
+        Serial.println(c);
+        delay(1000);
+      }
+      if (c == 2) {
+        if (Serial.available()) {
+          rec2 = Serial.read();
+          if ((rec2 == 'a') || (rec2 == 'b') || (rec2 == 'c') || (rec2 == 'd')) {
+            c = c + 1;
+          }
+        }
+        Serial.println(rec2);
+        Serial.println(c);
+        delay(1000);
+      }
+      if (c == 3) {
+        if (Serial.available()) {
+          rec3 = Serial.read();
+          if ((rec3 == 'a') || (rec3 == 'b') || (rec3 == 'c') || (rec3 == 'd')) {
+            c = c + 1;
+            j = 1;
+          }
+        }
+        Serial.println(rec);
+        Serial.println(rec1);
+        Serial.println(rec2);
+        Serial.println(rec3);
+        Serial.println(c);
+        delay(1000);
+      }
+    }
+    if (j == 1) {
+      lcd.setCursor(0, 0);
+      lcd.print(" TEST STARTED ");
+      int ir1 = (1 - digitalRead(36));
+      int ir2 = (1 - digitalRead(34));
+      int ir3 = (1 - digitalRead(32));
+      int ir4 = (1 - digitalRead(33));
+      lcd.setCursor(15, 1);
+      lcd.print(count);
+      if ((ir1 == 1) && (ir2 == 0) && (ir3 == 0) && (ir4 == 0)) {
+        Serial.println("IR1 detected");
+        delay(2000);
+        test_L[count] = 'a';
+        count = count + 1;
+        delay(2000);
+      }
+      if ((ir1 == 0) && (ir2 == 1) && (ir3 == 0) && (ir4 == 0)) {
+        Serial.println("IR2 detected");
+        delay(2000);
+        test_L[count] = 'b';
+        count = count + 1;
+        delay(2000);
+      }
+      if ((ir1 == 0) && (ir2 == 0) && (ir3 == 1) && (ir4 == 0)) {
+        Serial.println("IR3 detected");
+        delay(2000);
+        test_L[count] = 'c';
+        count = count + 1;
+        delay(2000);
+      }
+      if ((ir1 == 0) && (ir2 == 0) && (ir3 == 0) && (ir4 == 1)) {
+        Serial.println("IR4 detected");
+        delay(2000);
+        test_L[count] = 'd';
+        count = count + 1;
+        delay(2000);
+      }
+      if (count == 4) {
+        if (((test_L[0] == rec) && (test_L[1] == rec1) && (test_L[2] == rec2) && (test_L[3] == rec3))) {
+          lcd.setCursor(0, 0);
+          lcd.print("YOUR RESULTS                ");
+          delay(2000);
+          lcd.setCursor(0, 0);
+          lcd.print(" TEST PASSED                 ");
+          delay(2000);
+          Serial.println("TEST PASSED");
+          Serial.println(rec);
+          Serial.println(rec1);
+          Serial.println(rec2);
+          Serial.println(rec3);
+          lcd.clear();
+          j = 0;
+          count = 0;
+          sensor3_status = "TEST PASSED";
+          iot();
+        } else {
+          lcd.setCursor(0, 0);
+          lcd.print("YOUR RESULTS                ");
+          delay(2000);
+          lcd.setCursor(0, 0);
+          lcd.print(" TEST FAILED                 ");
+          digitalWrite(26, HIGH);
+          delay(2000);
+          Serial.println("TEST FAILED");
+          digitalWrite(26,LOW);
+          Serial.println(rec);
+          Serial.println(rec1);
+          Serial.println(rec2);
+          Serial.println(rec3);
+          lcd.clear();
+          j = 0;
+          count = 0;
+          sensor3_status = "TEST FAILED";
+          iot();
+        }
+      }
+    }
+  }
+}
+void iot() {
+  DynamicJsonDocument jsonBuffer(JSON_OBJECT_SIZE(3) + 300);
+  JsonObject root = jsonBuffer.to<JsonObject>();
+  root["sensor1"] = sensor1_status;
+  root["sensor2"] = sensor2_status;
+  root["sensor3"] = sensor3_status;
+  root["sensor4"] = sensor4_status;
+  root["sensor5"] = sensor5_status;
+  root["sensor6"] = sensor6_status;
+  root["sensor7"] = sensor7_status;
+  root["sensor8"] = sensor8_status;
+  root["sms"] = "1";
+  String json;
+  serializeJson(jsonBuffer, json);
+  if (sensor1_status != "null") {
+    HTTPClient http;                                   //Declare object of class HTTPClient
+    http.begin("http://iotbegineer.com/api/sensors");  //Specify request destination
+    http.addHeader("username", "iotbegin461");         //Specify content-type header
+    http.addHeader("Content-Type", "application/json");
+    int httpCode = http.POST(json);     //Send the request
+    String payload = http.getString();  //Get the response payload
+    http.end();                         //Close connection
+    delay(10000);
+  }
+}
+

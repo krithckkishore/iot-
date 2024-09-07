@@ -1,0 +1,67 @@
+#include "Arduino.h"
+#include "SoftwareSerial.h"
+#include "DFRobotDFPlayerMini.h"
+#include <LiquidCrystal.h>
+const int rs = 5, en = 18, d4 = 19, d5 = 21, d6 = 22, d7 = 23;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+//SoftwareSerial mySoftwareSerial(16, 17); // RX, TX
+DFRobotDFPlayerMini myDFPlayer;
+void printDetail(uint8_t type, int value);
+char received;
+void setup() {
+  Serial2.begin(9600);
+  Serial.begin(9600);
+  pinMode(35, INPUT);
+  pinMode(33, INPUT);
+  pinMode(32, INPUT);
+  pinMode(25, INPUT);
+  lcd.begin(16, 2);
+  lcd.setCursor(0, 0);
+  lcd.print("  VEHICLE        ");
+  delay(3000);
+  if (!myDFPlayer.begin(Serial2)) {  //Use softwareSerial to communicate with mp3.
+   while (true) {
+      delay(0);  // Code to compatible with ESP8266 watch dog.
+   }
+    lcd.clear();
+  }
+  myDFPlayer.volume(30);  //Set volume value. From 0 to 30
+  //  myDFPlayer.play(1);  //Play the first mp3
+}
+
+void loop() {
+  int a = digitalRead(35);
+  int b = digitalRead(33);
+  int c = digitalRead(32);
+  int d = digitalRead(25);
+  if (a == 1) {
+    lcd.setCursor(0, 0);
+    lcd.print("FORWARD  ");
+    Serial.println('a');
+    myDFPlayer.play(1);
+    delay(3000);
+  }
+  if (b == 1) {
+    lcd.setCursor(0, 0);
+    lcd.print("BACKWARD  ");
+    Serial.println('b');
+    myDFPlayer.play(2);
+    delay(3000);
+  }
+  if (c == 1) {
+    lcd.setCursor(0, 0);
+    lcd.print("RIGHT                ");
+    Serial.println('c');
+    myDFPlayer.play(3);
+    delay(3000);
+  }
+  if (d == 1) {
+    lcd.setCursor(0, 0);
+    lcd.print("LEFT           ");
+    Serial.println('d');
+    myDFPlayer.play(4);
+    delay(3000);
+  }
+  lcd.setCursor(0, 0);
+  lcd.print("                        ");
+}
